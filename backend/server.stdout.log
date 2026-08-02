@@ -1,0 +1,56 @@
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44 [33mSLOW SQL >= 200ms
+[0m[31;1m[200.731ms] [33m[rows:1][35m SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'managers' AND table_type = 'BASE TABLE'[0m
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[2.952ms] [34;1m[rows:1][0m SELECT CURRENT_DATABASE()
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44 [33mSLOW SQL >= 200ms
+[0m[31;1m[229.800ms] [33m[rows:-][35m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'football-app' AND table_schema = CURRENT_SCHEMA() AND table_name = 'managers'[0m
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[14.731ms] [34;1m[rows:-][0m SELECT * FROM "managers" LIMIT 5
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[41.560ms] [34;1m[rows:-][0m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'football-app' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'managers' AND constraint_type = 'UNIQUE'
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[11.754ms] [34;1m[rows:-][0m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'football-app' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'managers'
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[6.165ms] [34;1m[rows:-][0m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'managers'
+
+2026/08/02 16:10:59 [32mE:/React/New folder/New folder/FootBall-App/backend/internal/adapter/storage/postgres/db.go:44
+[0m[33m[4.178ms] [34;1m[rows:0][0m SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'managers' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'managers' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/08/02 16:10:59 [32m
+[0m[33m[0.000ms] [34;1m[rows:1][0m SELECT CURRENT_DATABASE()
+
+2026/08/02 16:10:59 [32m
+[0m[33m[4.525ms] [34;1m[rows:-][0m SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'football-app' AND table_schema = CURRENT_SCHEMA() AND table_name = 'managers'
+
+2026/08/02 16:10:59 [32m
+[0m[33m[0.521ms] [34;1m[rows:-][0m SELECT * FROM "managers" LIMIT 5
+
+2026/08/02 16:10:59 [32m
+[0m[33m[10.557ms] [34;1m[rows:-][0m SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'football-app' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'managers' AND constraint_type = 'UNIQUE'
+
+2026/08/02 16:10:59 [32m
+[0m[33m[5.699ms] [34;1m[rows:-][0m SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'football-app' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'managers'
+
+2026/08/02 16:10:59 [32m
+[0m[33m[0.520ms] [34;1m[rows:-][0m SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'managers'
+
+2026/08/02 16:11:00 [32m
+[0m[33m[108.226ms] [34;1m[rows:0][0m ALTER TABLE "managers" ALTER COLUMN "username" TYPE text USING "username"::text
+
+2026/08/02 16:11:00 [31;1m [35;1mERROR: constraint "uni_managers_username" of relation "managers" does not exist (SQLSTATE 42704)
+[0m[33m[8.465ms] [34;1m[rows:0][0m ALTER TABLE "managers" DROP CONSTRAINT "uni_managers_username"

@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: #6ee7b7;
+  color: #052e16;
+}
+
+.app-shell {
+  background:
+    radial-gradient(circle at 8% 6%, rgba(52, 211, 153, 0.10), transparent 24rem),
+    radial-gradient(circle at 92% 18%, rgba(59, 130, 246, 0.08), transparent 28rem),
+    #f1f5f9;
+}
+
+main > div {
+  animation: page-enter 320ms ease-out both;
+}
+
+main h1 {
+  letter-spacing: -0.035em;
+}
+
+main input,
+main select,
+main textarea {
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+main input:focus,
+main select:focus,
+main textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+}
+
+main .shadow-md,
+main .shadow-lg {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.35);
+}
+
+main button,
+main a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main > div { animation: none; }
+}
+
+@layer components {
+  .auth-shell {
+    @apply grid min-h-screen bg-white lg:grid-cols-2;
+  }
+
+  .auth-showcase {
+    @apply relative hidden overflow-hidden bg-slate-950 px-12 py-14 text-white lg:flex lg:items-center xl:px-20;
+    background-image:
+      linear-gradient(rgba(15, 23, 42, .42), rgba(15, 23, 42, .86)),
+      radial-gradient(circle at 75% 22%, rgba(52, 211, 153, .3), transparent 28rem),
+      repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(255,255,255,.025) 80px);
+  }
+
+  .auth-showcase::after {
+    content: '';
+    @apply absolute -bottom-40 -right-40 h-96 w-96 rounded-full border border-emerald-400/20;
+    box-shadow: 0 0 0 70px rgba(52,211,153,.035), 0 0 0 140px rgba(52,211,153,.025);
+  }
+
+  .auth-form-panel {
+    @apply flex items-center justify-center px-5 py-12 sm:px-10 lg:px-16;
+  }
+
+  .auth-label {
+    @apply mb-2 block text-sm font-semibold text-slate-700;
+  }
+
+  .auth-input {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm;
+  }
+}

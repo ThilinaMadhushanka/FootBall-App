@@ -1,0 +1,187 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create managers table
+CREATE TABLE managers (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    team_name VARCHAR(100),
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create teams table
+CREATE TABLE teams (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    manager_id INTEGER REFERENCES managers(id),
+    founded_year INTEGER NOT NULL,
+    stadium VARCHAR(100) NOT NULL,
+    location VARCHAR(100) NOT NULL,
+    logo_url TEXT,
+    budget DECIMAL(15,2) DEFAULT 0.00,
+    formation VARCHAR(20) NOT NULL DEFAULT '4-4-2',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create players table
+CREATE TABLE players (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    position VARCHAR(50) NOT NULL,
+    age INTEGER NOT NULL,
+    nationality VARCHAR(50) NOT NULL,
+    current_team_id INTEGER REFERENCES teams(id),
+    rating DECIMAL(5,2) CHECK (rating >= 0 AND rating <= 100),
+    price DECIMAL(15,2) DEFAULT 0.00,
+    salary DECIMAL(15,2) DEFAULT 0.00,
+    experience_years INTEGER DEFAULT 0,
+    height_cm INTEGER NULL,
+    weight_kg INTEGER NULL,
+    preferred_foot VARCHAR(10),
+    bio TEXT,
+    profile_image_url TEXT,
+    is_available BOOLEAN DEFAULT true,
+    games_played INTEGER DEFAULT 0,
+    goals INTEGER DEFAULT 0,
+    assists INTEGER DEFAULT 0,
+    yellow_cards INTEGER DEFAULT 0,
+    red_cards INTEGER DEFAULT 0,
+    clean_sheets INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP WITH TIME ZONE,
+    jersey_number INTEGER
+);
+
+-- Create team_players table (junction table for team-player relationships)
+CREATE TABLE team_players (
+    team_id INTEGER REFERENCES teams(id),
+    player_id INTEGER REFERENCES players(id),
+    jersey_number INTEGER,
+    salary INTEGER,
+    joined_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (team_id, player_id)
+);
+
+-- Create matches table
+CREATE TABLE matches (
+    id SERIAL PRIMARY KEY,
+    team1_id INTEGER REFERENCES teams(id),
+    team2_id INTEGER REFERENCES teams(id),
+    match_date DATE NOT NULL,
+    match_time TIME NOT NULL,
+    venue VARCHAR(100) NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('scheduled', 'live', 'completed', 'cancelled')),
+    score_team1 INTEGER DEFAULT 0,
+    score_team2 INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create match_events table
+CREATE TABLE match_events (
+    id SERIAL PRIMARY KEY,
+    match_id INTEGER REFERENCES matches(id),
+    event_type VARCHAR(50) NOT NULL,
+    player_id INTEGER REFERENCES players(id),
+    team_id INTEGER REFERENCES teams(id),
+    minute INTEGER NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create player_stats table
+CREATE TABLE player_stats (
+    player_id INTEGER PRIMARY KEY REFERENCES players(id),
+    games_played INTEGER DEFAULT 0,
+    goals INTEGER DEFAULT 0,
+    assists INTEGER DEFAULT 0,
+    yellow_cards INTEGER DEFAULT 0,
+    red_cards INTEGER DEFAULT 0,
+    clean_sheets INTEGER DEFAULT 0,
+    minutes_played INTEGER DEFAULT 0,
+    pass_accuracy DECIMAL(5,2) DEFAULT 0.00,
+    shots_on_target INTEGER DEFAULT 0,
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create leaderboard table
+CREATE TABLE leaderboard (
+    manager_id INTEGER PRIMARY KEY REFERENCES managers(id),
+    team_id INTEGER REFERENCES teams(id),
+    total_points INTEGER DEFAULT 0,
+    league_rank INTEGER,
+    games_won INTEGER DEFAULT 0,
+    games_drawn INTEGER DEFAULT 0,
+    games_lost INTEGER DEFAULT 0,
+    goals_for INTEGER DEFAULT 0,
+    goals_against INTEGER DEFAULT 0,
+    goal_difference INTEGER DEFAULT 0
+);
+
+-- Create user_settings table
+CREATE TABLE user_settings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    user_type VARCHAR(10) NOT NULL CHECK (user_type IN ('manager', 'player')),
+    email_notifications BOOLEAN DEFAULT true,
+    match_reminders BOOLEAN DEFAULT true,
+    dark_mode BOOLEAN DEFAULT false,
+    language VARCHAR(10) DEFAULT 'en',
+    timezone VARCHAR(50) DEFAULT 'UTC',
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, user_type)
+);
+
+-- Create indexes for better query performance
+CREATE INDEX idx_players_current_team ON players(current_team_id);
+CREATE INDEX idx_matches_teams ON matches(team1_id, team2_id);
+CREATE INDEX idx_matches_status ON matches(status);
+CREATE INDEX idx_match_events_match_id ON match_events(match_id);
+CREATE INDEX idx_team_players_team_id ON team_players(team_id);
+CREATE INDEX idx_team_players_player_id ON team_players(player_id);
+CREATE INDEX idx_leaderboard_rank ON leaderboard(league_rank);
+CREATE INDEX idx_user_settings_user ON user_settings(user_id, user_type);
+
+-- Add foreign key constraints
+ALTER TABLE teams
+    ADD CONSTRAINT fk_teams_manager
+    FOREIGN KEY (manager_id)
+    REFERENCES managers(id)
+    ON DELETE SET NULL;
+
+-- Create trigger to update player_stats when match_events are inserted
+CREATE OR REPLACE FUNCTION update_player_stats()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update relevant stats based on event_type
+    CASE NEW.event_type
+        WHEN 'goal' THEN
+            UPDATE player_stats
+            SET goals = goals + 1
+            WHERE player_id = NEW.player_id;
+        WHEN 'assist' THEN
+            UPDATE player_stats
+            SET assists = assists + 1
+            WHERE player_id = NEW.player_id;
+        WHEN 'yellow_card' THEN
+            UPDATE player_stats
+            SET yellow_cards = yellow_cards + 1
+            WHERE player_id = NEW.player_id;
+        WHEN 'red_card' THEN
+            UPDATE player_stats
+            SET red_cards = red_cards + 1
+            WHERE player_id = NEW.player_id;
+    END CASE;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_stats_on_event
+    AFTER INSERT ON match_events
+    FOR EACH ROW
+    EXECUTE FUNCTION update_player_stats(); 

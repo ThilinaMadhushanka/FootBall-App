@@ -1,0 +1,16 @@
+{
+  "short_name": "PlayerPro",
+  "name": "PlayerPro Football Manager",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#020617",
+  "background_color": "#f1f5f9"
+}
