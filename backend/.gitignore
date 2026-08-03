@@ -1,0 +1,39 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Go build outputs
+/server
+/server.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Runtime logs
+*.log
+
+# Test and coverage output
+coverage/
+coverage.html
+coverage.out
+
+# Runtime uploads and temporary files
+/uploads/
+/tmp/
+/temp/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
