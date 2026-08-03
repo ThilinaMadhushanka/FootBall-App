@@ -39,6 +39,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	competitionHandler := api.NewCompetitionHandler(db)
 	contractHandler := api.NewContractHandler(db)
 	notificationHandler := api.NewNotificationHandler(db)
+	assistantHandler := api.NewAssistantHandler(db)
 
 	// Create router
 	router := gin.Default()
@@ -63,6 +64,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		authenticated.Use(middleware.AuditMutations(db))
 		{
 			authenticated.GET("/notifications", notificationHandler.List)
+			authenticated.POST("/assistant/chat", assistantHandler.Chat)
 			authenticated.PUT("/notifications/read-all", notificationHandler.ReadAll)
 			authenticated.PUT("/notifications/:id/read", notificationHandler.Read)
 			authenticated.GET("/competitions", competitionHandler.List)

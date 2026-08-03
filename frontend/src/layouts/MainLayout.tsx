@@ -1,6 +1,7 @@
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import AIAssistant from "../components/AIAssistant/AIAssistant";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -18,8 +19,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <footer className="mt-auto border-t border-white/10 bg-slate-950 text-white">
         <Footer />
       </footer>
+      <AIAssistant />
     </div>
   );
 };
 
-export default MainLayout; 
+export default MainLayout;
