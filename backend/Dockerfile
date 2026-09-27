@@ -32,7 +32,7 @@ FROM alpine:3.21
 WORKDIR /app
 
 RUN apk add --no-cache ca-certificates tzdata \
-    && addgroup -S 10001 playerpro \
+    && addgroup -S -g 10001 playerpro \
     && adduser -S -u 10001 -G playerpro playerpro \
     && mkdir -p /app/uploads \
     && chown -R playerpro:playerpro /app

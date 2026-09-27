@@ -23,6 +23,8 @@ RUN pip install --upgrade pip \
 # Copy the application code to the container
 COPY app ./app
 
+RUN python -m compileall -q app
+
 # Set the ownership of the application directory to the non-root user
 RUN chown -R playerpro:playerpro /app
 
