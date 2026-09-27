@@ -21,6 +21,9 @@ pipeline {
     stage('Prepare') {
       steps {
         script {
+          // Export explicitly: the first build may not receive parameter environment variables.
+          env.ACR_SERVER = (params.ACR_SERVER ?: 'playerprothilina0616.azurecr.io').trim()
+
           env.SKIP_BUILD = sh(
             script: "git log -1 --pretty=%B | grep -Fq '[skip ci]' && echo true || echo false",
             returnStdout: true
