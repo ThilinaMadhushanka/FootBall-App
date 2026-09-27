@@ -1,0 +1,41 @@
+registry: replace.azurecr.io
+tag: bootstrap
+
+frontendServiceType: ClusterIP
+storageClass: managed-csi 
+
+
+model: llama3.2:1b
+ollamaImage: ollama/ollama:latest
+postgresImage: postgres:16-alpine
+
+workloads:
+  frontend:
+    port: 80
+    cpu: 50m
+    memory: 64Mi
+    memoryLimit: 256Mi
+
+  backend:
+    port: 8080
+    cpu: 100m
+    memory: 128Mi
+    memoryLimit: 512Mi
+
+  ai-service:
+    port: 8000
+    cpu: 100m
+    memory: 128Mi
+    memoryLimit: 512Mi
+
+  ollama:
+    port: 11434
+    cpu: 500m
+    memory: 2Gi
+    memoryLimit: 4Gi
+
+  postgres: 
+    port: 5432
+    cpu: 100m
+    memory: 256Mi
+    memoryLimit: 1Gi

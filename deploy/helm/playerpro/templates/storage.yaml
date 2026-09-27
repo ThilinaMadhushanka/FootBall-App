@@ -1,0 +1,19 @@
+{{- range $name, $size := dict "postgres" "8Gi" "ollama" "16Gi" "backend" "4Gi" }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-data
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+
+  storageClassName: {{ $.Values.storageClass }}
+
+  resources:
+    requests:
+      storage: {{ $size }}
+{{- end }}

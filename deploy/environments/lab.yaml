@@ -1,0 +1,3 @@
+registry: replace.azurecr.io
+tag: bootstrap
+frontendServiceType: ClusterIP

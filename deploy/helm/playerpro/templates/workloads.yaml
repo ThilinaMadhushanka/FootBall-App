@@ -1,0 +1,192 @@
+{{- range $name, $cfg := .Values.workloads }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+spec:
+  replicas: 1
+
+  strategy:
+    type: Recreate
+
+  selector:
+    matchLabels:
+      app: {{ $name }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+
+    spec:
+      automountServiceAccountToken: false
+
+      {{- if eq $name "backend" }}
+      securityContext:
+        fsGroup: 10001
+      {{- end }}
+
+      containers:
+        - name: {{ $name }}
+
+          {{- if eq $name "ollama" }}
+          image: {{ $.Values.ollamaImage | quote }}
+          {{- else if eq $name "postgres" }}
+          image: {{ $.Values.postgresImage | quote }}
+          {{- else }}
+          image: "{{ $.Values.registry }}/playerpro-{{ $name }}:{{ $.Values.tag }}"
+          {{- end }}
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: {{ $cfg.port }}
+
+          resources:
+            requests:
+              cpu: {{ $cfg.cpu | quote }}
+              memory: {{ $cfg.memory | quote }}
+            limits:
+              memory: {{ $cfg.memoryLimit | quote }}
+
+          {{- if eq $name "postgres" }}
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: playerpro-secrets
+                  key: DB_NAME
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: playerpro-secrets
+                  key: DB_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: playerpro-secrets
+                  key: DB_PASSWORD
+
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: schema
+              mountPath: /docker-entrypoint-initdb.d
+
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+            periodSeconds: 5
+
+          {{- else if eq $name "backend" }}
+          envFrom:
+            - secretRef:
+                name: playerpro-secrets
+
+          env:
+            - name: APP_PORT
+              value: "8080"
+            - name: APP_ENV
+              value: production
+            - name: GIN_MODE
+              value: release
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: AI_SERVICE_URL
+              value: http://ai-service:8000
+            - name: UPLOAD_PATH
+              value: /app/uploads
+
+          volumeMounts:
+            - name: data
+              mountPath: /app/uploads
+
+          {{- else if eq $name "ai-service" }}
+          env:
+            - name: AI_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: playerpro-secrets
+                  key: AI_SERVICE_TOKEN
+
+            - name: OLLAMA_URL
+              value: http://ollama:11434
+            - name: OLLAMA_MODEL
+              value: {{ $.Values.model | quote }}
+            - name: OLLAMA_TIMEOUT_SECONDS
+              value: "120"
+            - name: OLLAMA_MAX_OUTPUT_TOKENS
+              value: "256"
+
+          {{- else if eq $name "ollama" }}
+          env:
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:11434"
+            - name: OLLAMA_NUM_PARALLEL
+              value: "1"
+
+          volumeMounts:
+            - name: data
+              mountPath: /root/.ollama
+          {{- end }}
+
+          {{- if ne $name "postgres" }}
+          startupProbe:
+            tcpSocket:
+              port: {{ $cfg.port }}
+            periodSeconds: 5
+            failureThreshold: 60
+
+          readinessProbe:
+            tcpSocket:
+              port: {{ $cfg.port }}
+            periodSeconds: 10
+
+          livenessProbe:
+            tcpSocket:
+              port: {{ $cfg.port }}
+            periodSeconds: 20
+            failureThreshold: 6
+          {{- end }}
+
+      {{- if or (eq $name "postgres") (eq $name "ollama") (eq $name "backend") }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: "{{ $name }}-data"
+
+        {{- if eq $name "postgres" }}
+        - name: schema
+          configMap:
+            name: postgres-schema
+        {{- end }}
+      {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  type: {{ if eq $name "frontend" }}{{ $.Values.frontendServiceType }}{{ else }}ClusterIP{{ end }}
+
+  selector:
+    app: {{ $name }}
+
+  ports:
+    - name: http
+      port: {{ $cfg.port }}
+      targetPort: {{ $cfg.port }}
+{{- end }}

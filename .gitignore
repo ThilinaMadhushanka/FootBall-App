@@ -1,1 +1,15 @@
 .env.docker
+
+# Local credentials and Terraform generated files
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+*.kubeconfig
