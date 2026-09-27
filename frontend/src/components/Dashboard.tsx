@@ -337,10 +337,10 @@ const Dashboard: React.FC = () => {
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">
               {isManager
-                ? "Manager workspace"
+                ? "Manager Details"
                 : isPlayer
-                  ? "Player centre"
-                  : "Match centre"}
+                  ? "Player Details"
+                  : "Match Details & Stats"}
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight">
               Welcome back,{" "}
