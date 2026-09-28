@@ -130,9 +130,9 @@ EOF
             git config user.name 'PlayerPro CI'
             git config user.email 'playerpro-ci@example.invalid'
 
-            printf 'registry: %s\\ntag: "%s"\\nfrontendServiceType: ClusterIP\\n' \
-              "$ACR_SERVER" "$IMAGE_TAG" \
-              > deploy/environments/lab.yaml
+            # Preserve service exposure and other environment settings.
+            sed -i "s|^registry:.*|registry: $ACR_SERVER|" deploy/environments/lab.yaml
+            sed -i "s|^tag:.*|tag: $IMAGE_TAG|" deploy/environments/lab.yaml
 
             git add deploy/environments/lab.yaml
 
